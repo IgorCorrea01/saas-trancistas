@@ -242,6 +242,218 @@ public static class TemplateServicosTrancista
 
         servicos.Add(retirada);
 
+        // 6. French Curl Braids (Tendência Máxima)
+        var frenchCurl = new Servico(
+            empresaId,
+            "French Curl Braids",
+            "Tranças com mechas e pontas espiraladas sedosas em fibra francesa, trazendo leveza e movimento impecável.",
+            precoBase: 350.00m,
+            duracaoEstimadaMinutos: 420 // 7 horas
+        );
+
+        var pfc1 = frenchCurl.AdicionarPergunta(
+            "Comprimento desejado",
+            TipoPergunta.EscolhaUnica,
+            obrigatoria: true,
+            ordem: 1
+        );
+        pfc1.AdicionarOpcao("Médio (Altura do Sutiã)", 1);
+        pfc1.AdicionarOpcao("Longo (Cintura)", 2);
+        pfc1.AdicionarOpcao("Extra Longo (Quadril)", 3);
+
+        var pfc2 = frenchCurl.AdicionarPergunta(
+            "Quem irá fornecer a fibra francesa (French Curl)?",
+            TipoPergunta.EscolhaUnica,
+            obrigatoria: true,
+            ordem: 2
+        );
+        pfc2.AdicionarOpcao("Eu vou levar os pacotes de fibra francesa", 1);
+        pfc2.AdicionarOpcao("Quero que a trancista forneça o material", 2);
+
+        var pfc3 = frenchCurl.AdicionarPergunta(
+            "Qual a cor da fibra francesa?",
+            TipoPergunta.Texto,
+            obrigatoria: false,
+            ordem: 3,
+            descricaoAjuda: "Ex: 1B (Preto), Mel / T27, Cobre / T30, Castanho claro / 4, etc."
+        );
+
+        frenchCurl.AdicionarPergunta(
+            "Envie a foto do seu cabelo atual",
+            TipoPergunta.Arquivo,
+            obrigatoria: true,
+            ordem: 4
+        );
+
+        frenchCurl.AdicionarPergunta(
+            "Envie uma foto de referência do modelo desejado",
+            TipoPergunta.Arquivo,
+            obrigatoria: false,
+            ordem: 5
+        );
+
+        servicos.Add(frenchCurl);
+
+        // 7. Fulani Braids / Tribal Braids
+        var fulani = new Servico(
+            empresaId,
+            "Fulani Braids (Tribal com Nagô)",
+            "Estilo afro ancestral combinando tranças nagô com desenhos no topo/laterais e tranças soltas atrás com búzios e miçangas.",
+            precoBase: 300.00m,
+            duracaoEstimadaMinutos: 360 // 6 horas
+        );
+
+        var pfu1 = fulani.AdicionarPergunta(
+            "Qual a proposta de desenho no topo?",
+            TipoPergunta.EscolhaUnica,
+            obrigatoria: true,
+            ordem: 1
+        );
+        pfu1.AdicionarOpcao("Desenho clássico Fulani (trança central + laterais)", 1);
+        pfu1.AdicionarOpcao("Desenho geométrico personalizado / zigue-zague", 2);
+        pfu1.AdicionarOpcao("Trança Tiara frontal com tranças soltas atrás", 3);
+
+        fulani.AdicionarPergunta(
+            "Deseja colocar adornos (búzios, anéis dourados/prateados, miçangas de madeira)?",
+            TipoPergunta.SimNao,
+            obrigatoria: false,
+            ordem: 2
+        );
+
+        fulani.AdicionarPergunta(
+            "Envie a foto do seu cabelo natural",
+            TipoPergunta.Arquivo,
+            obrigatoria: true,
+            ordem: 3
+        );
+
+        fulani.AdicionarPergunta(
+            "Envie a foto de referência da Fulani desejada",
+            TipoPergunta.Arquivo,
+            obrigatoria: true,
+            ordem: 4
+        );
+
+        servicos.Add(fulani);
+
+        // 8. Twist / Passion Twist / Senegalese
+        var twist = new Servico(
+            empresaId,
+            "Twist / Passion Twist",
+            "Tranças torcidas de duas mechas (Two-Strand Twist), com textura leve, toque aveludado e caimento elegante.",
+            precoBase: 280.00m,
+            duracaoEstimadaMinutos: 360 // 6 horas
+        );
+
+        var ptw1 = twist.AdicionarPergunta(
+            "Qual o estilo de Twist desejado?",
+            TipoPergunta.EscolhaUnica,
+            obrigatoria: true,
+            ordem: 1
+        );
+        ptw1.AdicionarOpcao("Passion Twist (Cachos desconstruídos e macios)", 1);
+        ptw1.AdicionarOpcao("Senegalese Twist (Alinhado e sedoso com kanekalon/jumbo)", 2);
+        ptw1.AdicionarOpcao("Marley / Havana Twist (Textura crespa afro)", 3);
+
+        twist.AdicionarPergunta(
+            "Comprimento desejado",
+            TipoPergunta.Texto,
+            obrigatoria: false,
+            ordem: 2,
+            descricaoAjuda: "Ex: Ombro, Sutiã, Cintura."
+        );
+
+        twist.AdicionarPergunta(
+            "Envie a foto do seu cabelo atual",
+            TipoPergunta.Arquivo,
+            obrigatoria: true,
+            ordem: 3
+        );
+
+        servicos.Add(twist);
+
+        // 9. Goddess Braids
+        var goddess = new Servico(
+            empresaId,
+            "Goddess Braids",
+            "Tranças soltas com mechas de cachos volumosos intercalados ao longo do comprimento e finalização romântica.",
+            precoBase: 340.00m,
+            duracaoEstimadaMinutos: 420 // 7 horas
+        );
+
+        var pg1 = goddess.AdicionarPergunta(
+            "Intensidade dos cachos intercalados",
+            TipoPergunta.EscolhaUnica,
+            obrigatoria: true,
+            ordem: 1
+        );
+        pg1.AdicionarOpcao("Cachos sutis e pontas onduladas", 1);
+        pg1.AdicionarOpcao("Muito volume de cachos ao longo de todo o comprimento", 2);
+
+        goddess.AdicionarPergunta(
+            "Envie foto do seu cabelo atual",
+            TipoPergunta.Arquivo,
+            obrigatoria: true,
+            ordem: 2
+        );
+
+        servicos.Add(goddess);
+
+        // 10. Faux Locs / Butterfly Locs
+        var locs = new Servico(
+            empresaId,
+            "Faux Locs / Butterfly Locs",
+            "Dreads temporários artesanais com textura estilizada (Butterfly desconstruída ou Locs alinhados tradicionais).",
+            precoBase: 360.00m,
+            duracaoEstimadaMinutos: 420 // 7 horas
+        );
+
+        var pl1 = locs.AdicionarPergunta(
+            "Qual o tipo de Locs desejado?",
+            TipoPergunta.EscolhaUnica,
+            obrigatoria: true,
+            ordem: 1
+        );
+        pl1.AdicionarOpcao("Butterfly Locs (Efeito borboleta texturizado)", 1);
+        pl1.AdicionarOpcao("Faux Locs Tradicionais (Textura lisa e uniforme)", 2);
+        pl1.AdicionarOpcao("Soft Locs (Leves e flexíveis)", 3);
+
+        locs.AdicionarPergunta(
+            "Envie foto do seu cabelo atual",
+            TipoPergunta.Arquivo,
+            obrigatoria: true,
+            ordem: 2
+        );
+
+        servicos.Add(locs);
+
+        // 11. Entrelace / Crochet Braids
+        var entrelace = new Servico(
+            empresaId,
+            "Entrelace / Crochet Braids",
+            "Aplicação de extensões orgânicas, cacheadas ou lisas sobre base protetora de trança nagô.",
+            precoBase: 200.00m,
+            duracaoEstimadaMinutos: 240 // 4 horas
+        );
+
+        var pe1 = entrelace.AdicionarPergunta(
+            "Qual a técnica de aplicação?",
+            TipoPergunta.EscolhaUnica,
+            obrigatoria: true,
+            ordem: 1
+        );
+        pe1.AdicionarOpcao("Entrelace Tradicional (Costurado na base nagô)", 1);
+        pe1.AdicionarOpcao("Crochet Braids (Passado na agulha mecha a mecha)", 2);
+
+        entrelace.AdicionarPergunta(
+            "Envie foto do seu cabelo atual e referência da fibra",
+            TipoPergunta.Arquivo,
+            obrigatoria: true,
+            ordem: 2
+        );
+
+        servicos.Add(entrelace);
+
         return servicos;
     }
 }

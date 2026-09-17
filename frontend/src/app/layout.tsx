@@ -10,13 +10,32 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "SaaS Trancistas & Beleza Autônoma",
-  description: "Plataforma de orçamentos personalizados e agendamentos para trancistas e profissionais de beleza.",
+  title: "TrançaFlow • Sistema de Orçamento e Agendamento para Trancistas",
+  description:
+    "Transforme pedidos de orçamento em atendimentos. Receba pedidos com fotos, monte orçamentos profissionais, cobre sinal e organize sua agenda em um só lugar.",
+  keywords: [
+    "sistema para trancista",
+    "sistema de orçamento para trancista",
+    "agenda para trancista",
+    "formulário para clientes de tranças",
+    "agendamento para trancista",
+    "catálogo de tranças",
+    "gestão para trancistas",
+  ],
+  authors: [{ name: "TrançaFlow" }],
+  openGraph: {
+    title: "TrançaFlow • Sistema de Orçamento e Agendamento para Trancistas",
+    description:
+      "Transforme pedidos de orçamento em atendimentos. Receba pedidos com fotos, defina seu orçamento e organize sua agenda sem complicações.",
+    type: "website",
+    locale: "pt_BR",
+    siteName: "TrançaFlow",
+  },
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Tranças App",
+    title: "TrançaFlow",
   },
   icons: {
     icon: "/favicon.ico",
