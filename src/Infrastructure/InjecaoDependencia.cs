@@ -57,10 +57,11 @@ public static class InjecaoDependencia
             }
             else
             {
-                var connectionString = config.GetConnectionString("ConexaoPadrao");
+                var connectionString = config.GetConnectionString("ConexaoPadrao") ?? config["DATABASE_URL"];
                 if (!string.IsNullOrWhiteSpace(connectionString))
                 {
-                    options.UseNpgsql(connectionString, npgsqlOptions =>
+                    var connectionFormatada = FormatarNpgsqlConnectionString(connectionString);
+                    options.UseNpgsql(connectionFormatada, npgsqlOptions =>
                     {
                         npgsqlOptions.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName);
                         npgsqlOptions.EnableRetryOnFailure(maxRetryCount: 3, maxRetryDelay: TimeSpan.FromSeconds(5), errorCodesToAdd: null);
@@ -100,5 +101,42 @@ public static class InjecaoDependencia
         });
 
         return services;
+    }
+
+    private static string FormatarNpgsqlConnectionString(string rawConnectionString)
+    {
+        if (string.IsNullOrWhiteSpace(rawConnectionString))
+            return rawConnectionString;
+
+        // Se a string começar com postgres:// ou postgresql:// (URI comum do Neon, Supabase, Render)
+        if (rawConnectionString.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase) ||
+            rawConnectionString.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase))
+        {
+            try
+            {
+                var uri = new Uri(rawConnectionString);
+                var builder = new Npgsql.NpgsqlConnectionStringBuilder
+                {
+                    Host = uri.Host,
+                    Port = uri.Port > 0 ? uri.Port : 5432,
+                    Database = uri.AbsolutePath.TrimStart('/'),
+                    SslMode = Npgsql.SslMode.Require,
+                };
+
+                var userInfo = uri.UserInfo.Split(':');
+                if (userInfo.Length > 0 && !string.IsNullOrWhiteSpace(userInfo[0]))
+                    builder.Username = Uri.UnescapeDataString(userInfo[0]);
+                if (userInfo.Length > 1 && !string.IsNullOrWhiteSpace(userInfo[1]))
+                    builder.Password = Uri.UnescapeDataString(userInfo[1]);
+
+                return builder.ConnectionString;
+            }
+            catch
+            {
+                return rawConnectionString;
+            }
+        }
+
+        return rawConnectionString;
     }
 }
