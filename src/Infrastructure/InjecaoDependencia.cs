@@ -24,7 +24,17 @@ public static class InjecaoDependencia
         // Serviços de Segurança, Criptografia e Armazenamento
         services.AddSingleton<IServicoCriptografia, ServicoCriptografia>();
         services.AddScoped<ITokenJwtService, TokenJwtService>();
-        services.AddSingleton<IArmazenamentoArquivos, ArmazenamentoArquivosLocal>();
+
+        var provedorArmazenamento = configuration["Armazenamento:Provedor"] ?? "Local";
+        if (provedorArmazenamento.Equals("S3", StringComparison.OrdinalIgnoreCase) ||
+            provedorArmazenamento.Equals("R2", StringComparison.OrdinalIgnoreCase))
+        {
+            services.AddSingleton<IArmazenamentoArquivos, ArmazenamentoArquivosS3>();
+        }
+        else
+        {
+            services.AddSingleton<IArmazenamentoArquivos, ArmazenamentoArquivosLocal>();
+        }
 
         // Configuração dinâmica do DbContext (suporte a SQLite, PostgreSQL e InMemory em runtime)
         services.AddDbContext<AppDbContext>((serviceProvider, options) =>
