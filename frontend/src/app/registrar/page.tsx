@@ -11,12 +11,25 @@ import { formatarSlug } from "@/utilitarios/formatadores";
 import { Button } from "@/componentes/ui/button";
 import { Input } from "@/componentes/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/componentes/ui/card";
-import { Sparkles, AlertCircle, ArrowLeft, Globe } from "lucide-react";
+import {
+  Sparkles,
+  AlertCircle,
+  ArrowLeft,
+  Globe,
+  Store,
+  User,
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  CheckCircle2
+} from "lucide-react";
 
 export default function PaginaRegistro() {
   const { registrar: cadastrar } = useAutenticacao();
   const [erroApi, setErroApi] = useState<string | null>(null);
   const [slugModificadoManualmente, setSlugModificadoManualmente] = useState(false);
+  const [mostrarSenha, setMostrarSenha] = useState(false);
 
   const {
     register,
@@ -30,7 +43,7 @@ export default function PaginaRegistro() {
 
   const slugAtual = watch("slug") || "";
 
-  // Auxilia na sugestao automatica de slug a partir do nome do estudio
+  // Auxilia na sugestão automática de slug a partir do nome do estúdio
   const handleNomeEmpresaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const nome = e.target.value;
     setValue("nomeEmpresa", nome, { shouldValidate: true });
@@ -54,32 +67,43 @@ export default function PaginaRegistro() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 bg-gradient-to-b from-background via-background to-secondary/30 py-8">
-      <div className="w-full max-w-lg">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Voltar ao início
-        </Link>
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 bg-gradient-to-b from-background via-background to-secondary/30 py-8 relative overflow-hidden">
+      {/* Subtle Ambient Glows */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-primary/10 rounded-full blur-3xl -z-10 pointer-events-none" />
 
-        <Card className="border-border/80 shadow-md">
-          <CardHeader className="space-y-1 text-center">
-            <div className="flex justify-center mb-2">
-              <div className="h-12 w-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
+      <div className="w-full max-w-lg">
+        {/* Top bar */}
+        <div className="flex items-center justify-between mb-6">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Voltar ao início
+          </Link>
+
+          <Link href="/" className="flex items-center gap-1.5 text-sm font-extrabold text-foreground">
+            <Sparkles className="h-4 w-4 text-primary" />
+            <span>Trança<span className="text-primary">Flow</span></span>
+          </Link>
+        </div>
+
+        <Card className="border-border/80 shadow-lg bg-card/95 backdrop-blur-sm rounded-2xl">
+          <CardHeader className="space-y-1.5 text-center pb-4">
+            <div className="flex justify-center mb-1">
+              <div className="h-12 w-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center shadow-xs">
                 <Sparkles className="h-6 w-6" />
               </div>
             </div>
-            <CardTitle className="text-2xl font-bold">Cadastrar meu Negócio</CardTitle>
-            <CardDescription>
-              Crie seu catálogo personalizado de tranças e comece a receber solicitações.
+            <CardTitle className="text-2xl font-bold tracking-tight">Cadastrar meu Estúdio</CardTitle>
+            <CardDescription className="text-xs sm:text-sm text-muted-foreground">
+              Crie seu catálogo personalizado de tranças e comece a receber solicitações organizadas.
             </CardDescription>
           </CardHeader>
 
-          <CardContent>
+          <CardContent className="space-y-4">
             {erroApi && (
-              <div className="mb-4 p-3.5 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-sm flex items-start gap-2.5 animate-in fade-in-50">
+              <div className="p-3.5 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-sm flex items-start gap-2.5 animate-in fade-in-50">
                 <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
                 <span>{erroApi}</span>
               </div>
@@ -87,13 +111,15 @@ export default function PaginaRegistro() {
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div className="space-y-1.5">
-                <label className="text-sm font-medium text-foreground">
+                <label className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+                  <Store className="h-3.5 w-3.5 text-muted-foreground" />
                   Nome do Estúdio / Profissional
                 </label>
                 <Input
                   type="text"
                   placeholder="Ex: Studio Afro Queen"
                   erro={!!errors.nomeEmpresa}
+                  className="rounded-xl h-11"
                   {...register("nomeEmpresa", { onChange: handleNomeEmpresaChange })}
                 />
                 {errors.nomeEmpresa && (
@@ -104,7 +130,8 @@ export default function PaginaRegistro() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-sm font-medium text-foreground">
+                <label className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+                  <Globe className="h-3.5 w-3.5 text-muted-foreground" />
                   Link Público do seu Catálogo (Slug)
                 </label>
                 <div className="relative">
@@ -112,6 +139,7 @@ export default function PaginaRegistro() {
                     type="text"
                     placeholder="studio-afro-queen"
                     erro={!!errors.slug}
+                    className="rounded-xl h-11"
                     {...register("slug", { onChange: handleSlugChange })}
                   />
                 </div>
@@ -120,22 +148,29 @@ export default function PaginaRegistro() {
                     {errors.slug.message}
                   </p>
                 ) : (
-                  <p className="text-xs text-muted-foreground flex items-center gap-1">
-                    <Globe className="h-3.5 w-3.5" />
-                    Link das clientes: <span className="font-semibold text-foreground">/{slugAtual || "seu-link"}</span>
-                  </p>
+                  <div className="p-2.5 rounded-lg bg-secondary/50 border border-border/60 text-xs text-muted-foreground flex items-center justify-between">
+                    <span className="flex items-center gap-1">
+                      <Globe className="h-3.5 w-3.5 text-primary" />
+                      Link do seu catálogo:
+                    </span>
+                    <span className="font-bold text-foreground">
+                      /{slugAtual || "seu-link"}
+                    </span>
+                  </div>
                 )}
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-foreground">
+                  <label className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+                    <User className="h-3.5 w-3.5 text-muted-foreground" />
                     Seu Nome
                   </label>
                   <Input
                     type="text"
                     placeholder="Ex: Isadora Silva"
                     erro={!!errors.nomeUsuario}
+                    className="rounded-xl h-11"
                     {...register("nomeUsuario")}
                   />
                   {errors.nomeUsuario && (
@@ -146,7 +181,8 @@ export default function PaginaRegistro() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-foreground">
+                  <label className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+                    <Mail className="h-3.5 w-3.5 text-muted-foreground" />
                     E-mail
                   </label>
                   <Input
@@ -154,6 +190,7 @@ export default function PaginaRegistro() {
                     placeholder="seuemail@exemplo.com"
                     autoComplete="email"
                     erro={!!errors.email}
+                    className="rounded-xl h-11"
                     {...register("email")}
                   />
                   {errors.email && (
@@ -165,16 +202,32 @@ export default function PaginaRegistro() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-sm font-medium text-foreground">
+                <label className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+                  <Lock className="h-3.5 w-3.5 text-muted-foreground" />
                   Senha
                 </label>
-                <Input
-                  type="password"
-                  placeholder="Mínimo 6 caracteres com maiúscula e número"
-                  autoComplete="new-password"
-                  erro={!!errors.senha}
-                  {...register("senha")}
-                />
+                <div className="relative">
+                  <Input
+                    type={mostrarSenha ? "text" : "password"}
+                    placeholder="Mínimo 6 caracteres com maiúscula e número"
+                    autoComplete="new-password"
+                    erro={!!errors.senha}
+                    className="rounded-xl h-11 pr-10"
+                    {...register("senha")}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setMostrarSenha(!mostrarSenha)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1"
+                    tabIndex={-1}
+                  >
+                    {mostrarSenha ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
                 {errors.senha && (
                   <p className="text-xs text-destructive font-medium">
                     {errors.senha.message}
@@ -184,18 +237,18 @@ export default function PaginaRegistro() {
 
               <Button
                 type="submit"
-                className="w-full h-12 text-base font-semibold mt-4"
+                className="w-full h-12 text-base font-bold shadow-sm mt-3 rounded-xl"
                 carregando={isSubmitting}
               >
-                Criar Minha Conta
+                Criar Minha Conta Grátis
               </Button>
             </form>
           </CardContent>
 
           <CardFooter className="flex flex-col space-y-3 text-center text-sm border-t border-border/40 pt-4">
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground text-xs sm:text-sm">
               Já possui conta?{" "}
-              <Link href="/login" className="text-primary font-semibold hover:underline">
+              <Link href="/login" className="text-primary font-bold hover:underline">
                 Fazer login
               </Link>
             </p>
