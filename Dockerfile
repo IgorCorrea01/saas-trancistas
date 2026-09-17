@@ -2,9 +2,9 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /app
 
 # Copia arquivos de projeto para restauração de dependências em cache
-COPY src/Dominio/Dominio.csproj src/Dominio/
-COPY src/Aplicacao/Aplicacao.csproj src/Aplicacao/
-COPY src/Infraestrutura/Infraestrutura.csproj src/Infraestrutura/
+COPY src/Domain/Domain.csproj src/Domain/
+COPY src/Application/Application.csproj src/Application/
+COPY src/Infrastructure/Infrastructure.csproj src/Infrastructure/
 COPY src/Api/Api.csproj src/Api/
 RUN dotnet restore src/Api/Api.csproj
 
