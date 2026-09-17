@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "frontend": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "launchUrl": "http://localhost:3000"
+    }
+  }
+}
