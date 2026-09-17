@@ -1,0 +1,16 @@
+﻿{
+  "name": "Trancas App - Studio de Trancas",
+  "short_name": "Trancas",
+  "description": "Catalogo, orcamentos e agendamentos para trancistas.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#e11d48",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}

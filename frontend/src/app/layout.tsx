@@ -12,6 +12,12 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "SaaS Trancistas & Beleza Autônoma",
   description: "Plataforma de orçamentos personalizados e agendamentos para trancistas e profissionais de beleza.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Tranças App",
+  },
   icons: {
     icon: "/favicon.ico",
   },
@@ -22,7 +28,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: "#b85d3b",
+  themeColor: "#e11d48",
 };
 
 export default function RootLayout({

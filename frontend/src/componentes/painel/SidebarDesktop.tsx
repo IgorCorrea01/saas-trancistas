@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAutenticacao } from "@/hooks/useAutenticacao";
 import { usePerfilProfissional } from "@/hooks/usePerfilProfissional";
+import { useEmpresaAtual } from "@/hooks/useEmpresa";
 import { cn } from "@/utilitarios/cn";
 import {
   LayoutDashboard,
@@ -21,10 +22,11 @@ export function SidebarDesktop() {
   const pathname = usePathname();
   const { usuario, logout } = useAutenticacao();
   const { perfil } = usePerfilProfissional();
+  const { data: empresa } = useEmpresaAtual();
 
   const nomeExibicao = perfil.nome || usuario?.nome || "Profissional";
-  const studioExibicao = perfil.nomeStudio || usuario?.nomeEmpresa || "Studio Tranças";
-  const slugExibicao = perfil.slug || usuario?.slugEmpresa || "meu-studio";
+  const studioExibicao = empresa?.nome || perfil.nomeStudio || usuario?.nomeEmpresa || "Studio Tranças";
+  const slugExibicao = empresa?.slug || perfil.slug || usuario?.slugEmpresa || "meu-studio";
 
   const links = [
     {

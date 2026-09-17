@@ -4,12 +4,14 @@ import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import { useAutenticacao } from "@/hooks/useAutenticacao";
 import { usePerfilProfissional } from "@/hooks/usePerfilProfissional";
+import { useEmpresaAtual } from "@/hooks/useEmpresa";
 import { useDashboard } from "@/hooks/useDashboard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/componentes/ui/card";
 import { Badge } from "@/componentes/ui/badge";
 import { Button } from "@/componentes/ui/button";
 import { Skeleton } from "@/componentes/ui/skeleton";
 import { EstadoVazio } from "@/componentes/feedback/EstadoVazio";
+import { ModalAcoesWhatsApp, DadosAgendamentoWhatsApp } from "@/componentes/whatsapp/ModalAcoesWhatsApp";
 import {
   formatarMoeda,
   formatarDataHora,
@@ -99,6 +101,8 @@ export default function PaginaDashboard() {
   const { usuario } = useAutenticacao();
   const { perfil } = usePerfilProfissional();
   const [linkCopiado, setLinkCopiado] = useState(false);
+  const [modalWhatsAppAberto, setModalWhatsAppAberto] = useState(false);
+  const [agendamentoWhatsApp, setAgendamentoWhatsApp] = useState<DadosAgendamentoWhatsApp | null>(null);
 
   // Lista dos últimos meses disponíveis
   const mesesDisponiveis = useMemo(() => gerarMesesDisponiveis(6), []);
@@ -140,12 +144,14 @@ export default function PaginaDashboard() {
     mesAnteriorFiltro.dataFimIso
   );
 
-  const nomeExibicao = perfil.nome || usuario?.nome || "Profissional";
-  const primeiroNome = nomeExibicao.split(" ")[0];
+  const { data: empresa } = useEmpresaAtual();
+  const nomeExibicao = empresa?.nome || perfil.nome || usuario?.nome || "Profissional";
+  const primeiroNome = (perfil.nome || usuario?.nome || "Profissional").split(" ")[0];
+  const slugAtivo = empresa?.slug || perfil.slug || usuario?.slugEmpresa || "meu-studio";
   const urlCatalogo =
     typeof window !== "undefined"
-      ? `${window.location.origin}/${perfil.slug || usuario?.slugEmpresa || "meu-studio"}`
-      : `/${perfil.slug || "meu-studio"}`;
+      ? `${window.location.origin}/${slugAtivo}`
+      : `/${slugAtivo}`;
 
   const handleCopiarLink = () => {
     if (typeof window !== "undefined") {
@@ -326,7 +332,7 @@ export default function PaginaDashboard() {
             </Button>
 
           <Button asChild size="sm" variant="ghost" className="text-xs h-9 text-slate-600 font-medium gap-1 rounded-xl">
-            <Link href={`/${perfil.slug || usuario?.slugEmpresa || "meu-studio"}`} target="_blank">
+            <Link href={`/${slugAtivo}`} target="_blank">
               <ExternalLink className="w-3.5 h-3.5" />
               Ver Catálogo
             </Link>
@@ -477,17 +483,30 @@ export default function PaginaDashboard() {
                 </div>
 
                 {telProximoCliente && (
-                  <a
-                    href={`https://wa.me/55${telProximoCliente}?text=Olá ${encodeURIComponent(
-                      proximoAtendimento.nomeCliente
-                    )}, tudo bem? Falo do estúdio sobre seu horário agendado!`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold p-2.5 rounded-xl transition-colors shadow-xs"
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      setAgendamentoWhatsApp({
+                        id: proximoAtendimento.id,
+                        nomeCliente: proximoAtendimento.nomeCliente,
+                        telefoneCliente: proximoAtendimento.telefoneCliente,
+                        nomeServico: proximoAtendimento.nomeServico,
+                        dataInicio: proximoAtendimento.dataInicio,
+                        dataFim: proximoAtendimento.dataFim,
+                        valorSinal: proximoAtendimento.valorSinal,
+                        valorFinal: proximoAtendimento.valorFinal,
+                        valorRestante:
+                          proximoAtendimento.valorFinal && proximoAtendimento.valorSinal
+                            ? Math.max(0, proximoAtendimento.valorFinal - proximoAtendimento.valorSinal)
+                            : undefined,
+                      });
+                      setModalWhatsAppAberto(true);
+                    }}
+                    className="w-full flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold p-2.5 h-10 rounded-xl transition-colors shadow-xs"
                   >
                     <MessageCircle className="w-4 h-4" />
-                    Chamar Cliente no WhatsApp
-                  </a>
+                    <span>Disparar Mensagens WhatsApp (Lembrete / Cuidados)</span>
+                  </Button>
                 )}
               </div>
             ) : (
@@ -696,6 +715,13 @@ export default function PaginaDashboard() {
           )}
         </CardContent>
       </Card>
+
+      {/* Modal: Ações e Modelos de Mensagem WhatsApp */}
+      <ModalAcoesWhatsApp
+        aberto={modalWhatsAppAberto}
+        onOpenChange={setModalWhatsAppAberto}
+        agendamento={agendamentoWhatsApp}
+      />
     </div>
   );
 }

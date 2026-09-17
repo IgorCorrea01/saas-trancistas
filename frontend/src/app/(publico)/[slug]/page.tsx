@@ -28,6 +28,27 @@ import {
   Check,
 } from "lucide-react";
 
+const CATEGORIAS_TRANCA = [
+  { id: "todas", rotulo: "Todas", icone: "✨" },
+  { id: "box-braids", rotulo: "Box Braids", icone: "👑" },
+  { id: "nago", rotulo: "Nagô / Raiz", icone: "⚡" },
+  { id: "twist", rotulo: "Twist & Marley", icone: "🌀" },
+  { id: "entrelace", rotulo: "Entrelace / Crochet", icone: "💇‍♀️" },
+  { id: "dreads", rotulo: "Dreads & Locs", icone: "🔥" },
+  { id: "penteados", rotulo: "Penteados & Infantil", icone: "🎀" },
+] as const;
+
+function detectarCategoria(nome: string, descricao?: string): string {
+  const texto = `${nome} ${descricao || ""}`.toLowerCase();
+  if (texto.includes("box") || texto.includes("knotless") || texto.includes("chanel") || texto.includes("boxeadora")) return "box-braids";
+  if (texto.includes("nagô") || texto.includes("nago") || texto.includes("raiz") || texto.includes("desenhada") || texto.includes("lateral") || texto.includes("topo")) return "nago";
+  if (texto.includes("twist") || texto.includes("marley") || texto.includes("passion") || texto.includes("senegalese")) return "twist";
+  if (texto.includes("entrelace") || texto.includes("crochet") || texto.includes("orgânic") || texto.includes("organic") || texto.includes("bio vegetal") || texto.includes("bio-vegetal")) return "entrelace";
+  if (texto.includes("dread") || texto.includes("locs") || texto.includes("gypsy") || texto.includes("butterfly")) return "dreads";
+  if (texto.includes("penteado") || texto.includes("infantil") || texto.includes("coque") || texto.includes("rabo") || texto.includes("tiara")) return "penteados";
+  return "outros";
+}
+
 export default function PaginaCatalogoPublico({
   params,
 }: {
@@ -38,6 +59,7 @@ export default function PaginaCatalogoPublico({
   const { perfil } = usePerfilProfissional();
 
   const [busca, setBusca] = useState("");
+  const [categoriaAtiva, setCategoriaAtiva] = useState<string>("todas");
 
   const nomeEstudioFormatado =
     slug
@@ -56,17 +78,28 @@ export default function PaginaCatalogoPublico({
   const instagramExibicao = perfil.slug === slug ? perfil.instagram : "";
   const whatsappExibicao = perfil.slug === slug ? perfil.whatsapp : "";
 
-  // Filtra apenas serviços que correspondam à busca do cliente
+  // Filtra serviços por busca e categoria
   const servicosFiltrados = useMemo(() => {
     if (!servicos) return [];
-    if (!busca.trim()) return servicos;
-    const termo = busca.toLowerCase();
-    return servicos.filter(
-      (s) =>
-        s.nome.toLowerCase().includes(termo) ||
-        (s.descricao && s.descricao.toLowerCase().includes(termo))
-    );
-  }, [servicos, busca]);
+    
+    return servicos.filter((s) => {
+      // Filtro por categoria
+      if (categoriaAtiva !== "todas") {
+        const cat = detectarCategoria(s.nome, s.descricao);
+        if (cat !== categoriaAtiva) return false;
+      }
+
+      // Filtro por termo de busca
+      if (busca.trim()) {
+        const termo = busca.toLowerCase();
+        const bateNome = s.nome.toLowerCase().includes(termo);
+        const bateDescricao = s.descricao && s.descricao.toLowerCase().includes(termo);
+        if (!bateNome && !bateDescricao) return false;
+      }
+
+      return true;
+    });
+  }, [servicos, busca, categoriaAtiva]);
 
   if (isLoading) {
     return (
@@ -219,6 +252,25 @@ export default function PaginaCatalogoPublico({
                 Limpar
               </button>
             )}
+          </div>
+
+          {/* Carrossel de Categorias */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1.5 pt-0.5 no-scrollbar">
+            {CATEGORIAS_TRANCA.map((cat) => (
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => setCategoriaAtiva(cat.id)}
+                className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all shrink-0 ${
+                  categoriaAtiva === cat.id
+                    ? "bg-rose-600 text-white shadow-xs"
+                    : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+                }`}
+              >
+                <span>{cat.icone}</span>
+                <span>{cat.rotulo}</span>
+              </button>
+            ))}
           </div>
 
           <div className="flex items-center justify-between px-1 text-xs text-slate-500 font-medium">

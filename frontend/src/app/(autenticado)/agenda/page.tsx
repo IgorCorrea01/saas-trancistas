@@ -51,6 +51,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/componentes/ui/dialog";
+import { ModalAcoesWhatsApp, DadosAgendamentoWhatsApp } from "@/componentes/whatsapp/ModalAcoesWhatsApp";
 
 export default function PaginaAgenda() {
   const [dataFiltro, setDataFiltro] = useState<string>(() => {
@@ -69,6 +70,10 @@ export default function PaginaAgenda() {
   const [modalCancelarAberto, setModalCancelarAberto] = useState(false);
   const [agendamentoParaCancelar, setAgendamentoParaCancelar] = useState<string | null>(null);
   const [motivoCancelamento, setMotivoCancelamento] = useState("");
+
+  // Modal de Disparos de WhatsApp
+  const [modalWhatsAppAberto, setModalWhatsAppAberto] = useState(false);
+  const [agendamentoWhatsApp, setAgendamentoWhatsApp] = useState<DadosAgendamentoWhatsApp | null>(null);
 
   // Queries
   const {
@@ -164,11 +169,23 @@ export default function PaginaAgenda() {
   const formatarStatusBadge = (status: StatusAgendamento, descricao: string) => {
     switch (status) {
       case StatusAgendamento.Agendado:
-        return <Badge variant="secondary" className="bg-amber-100 text-amber-800 border-amber-200">{descricao}</Badge>;
+        return (
+          <Badge variant="secondary" className="bg-amber-100 text-amber-900 border-amber-300 font-semibold text-[11px]">
+            Aguardando Sinal
+          </Badge>
+        );
       case StatusAgendamento.Confirmado:
-        return <Badge className="bg-blue-600 text-white">{descricao}</Badge>;
+        return (
+          <Badge className="bg-emerald-600 text-white font-semibold text-[11px]">
+            Sinal Confirmado
+          </Badge>
+        );
       case StatusAgendamento.Concluido:
-        return <Badge className="bg-emerald-600 text-white">{descricao}</Badge>;
+        return (
+          <Badge className="bg-slate-900 text-white font-semibold text-[11px]">
+            Atendimento Concluído
+          </Badge>
+        );
       case StatusAgendamento.Cancelado:
         return <Badge variant="destructive">{descricao}</Badge>;
       case StatusAgendamento.NaoCompareceu:
@@ -436,6 +453,10 @@ export default function PaginaAgenda() {
             <div className="space-y-3">
               {agendamentosFiltrados.map((item) => {
                 const telLimpo = limparTelefone(item.telefoneCliente);
+                const valorRestante =
+                  item.valorFinal && item.valorSinal
+                    ? Math.max(0, item.valorFinal - item.valorSinal)
+                    : 0;
                 const inicioHora = new Date(item.dataInicio).toLocaleTimeString("pt-BR", {
                   hour: "2-digit",
                   minute: "2-digit",
@@ -477,19 +498,39 @@ export default function PaginaAgenda() {
                             {item.nomeServico} (~{formatarDuracaoMinutos(item.duracaoMinutos)})
                           </p>
 
-                          <div className="flex items-center gap-3 text-xs text-slate-500 flex-wrap pt-0.5">
+                          <div className="flex items-center gap-2 text-xs text-slate-500 flex-wrap pt-0.5">
                             <span className="flex items-center gap-1 font-medium">
                               <CalendarIcon className="w-3.5 h-3.5 text-slate-400" />
                               {dataFormatada}
                             </span>
                             {item.valorFinal && (
-                              <span className="font-semibold text-slate-800">
+                              <span className="font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded-md">
                                 Total: {formatarMoeda(item.valorFinal)}
                               </span>
                             )}
-                            {item.valorSinal && (
-                              <span className="text-rose-600 font-medium">
-                                (Sinal: {formatarMoeda(item.valorSinal)})
+                            {item.status === StatusAgendamento.Agendado && (
+                              <span className="inline-flex items-center gap-1 font-semibold text-amber-900 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
+                                <AlertCircle className="w-3 h-3 text-amber-600" />
+                                Sinal Pendente: {formatarMoeda(item.valorSinal || (item.valorFinal ? item.valorFinal * 0.5 : 0))}
+                              </span>
+                            )}
+                            {item.status === StatusAgendamento.Confirmado && (
+                              <>
+                                <span className="inline-flex items-center gap-1 font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                                  <Check className="w-3 h-3 text-emerald-600" />
+                                  Sinal Pago: {formatarMoeda(item.valorSinal || (item.valorFinal ? item.valorFinal * 0.5 : 0))}
+                                </span>
+                                {valorRestante > 0 && (
+                                  <span className="inline-flex items-center gap-1 font-semibold text-purple-800 bg-purple-50 px-2 py-0.5 rounded-md border border-purple-200">
+                                    Na Cadeira: {formatarMoeda(valorRestante)}
+                                  </span>
+                                )}
+                              </>
+                            )}
+                            {item.status === StatusAgendamento.Concluido && (
+                              <span className="inline-flex items-center gap-1 font-semibold text-emerald-800 bg-emerald-100/70 px-2 py-0.5 rounded-md border border-emerald-300">
+                                <CheckCircle2 className="w-3 h-3 text-emerald-700" />
+                                Total Quitado
                               </span>
                             )}
                           </div>
@@ -504,53 +545,68 @@ export default function PaginaAgenda() {
 
                       {/* Right: Actions */}
                       <div className="flex items-center gap-2 sm:self-center shrink-0 flex-wrap border-t sm:border-t-0 pt-3 sm:pt-0 border-slate-100">
-                        {telLimpo && (
-                          <a
-                            href={`https://wa.me/55${telLimpo}?text=Olá ${encodeURIComponent(item.nomeCliente)}, falo do Studio sobre seu agendamento de ${encodeURIComponent(item.nomeServico)} dia ${dataFormatada}!`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 text-xs font-semibold transition-all"
-                          >
-                            <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
-                            WhatsApp
-                          </a>
-                        )}
+                        {/* Botão de Disparo WhatsApp com Modelos */}
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setAgendamentoWhatsApp({
+                              id: item.id,
+                              nomeCliente: item.nomeCliente,
+                              telefoneCliente: item.telefoneCliente,
+                              nomeServico: item.nomeServico,
+                              dataInicio: item.dataInicio,
+                              dataFim: item.dataFim,
+                              valorSinal: item.valorSinal,
+                              valorFinal: item.valorFinal,
+                              valorRestante: valorRestante,
+                            });
+                            setModalWhatsAppAberto(true);
+                          }}
+                          className="border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 text-xs h-8 font-semibold gap-1.5 rounded-xl shadow-2xs"
+                        >
+                          <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
+                          <span>WhatsApp</span>
+                        </Button>
 
                         {item.status === StatusAgendamento.Agendado && (
                           <Button
                             size="sm"
                             onClick={() => handleAtualizarStatus(item.id, StatusAgendamento.Confirmado)}
-                            className="bg-blue-600 hover:bg-blue-700 text-white text-xs h-8 font-medium gap-1"
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs h-8 font-bold gap-1 shadow-xs"
+                            title="Confirmar que o sinal Pix foi recebido e garantir a vaga"
                           >
                             <Check className="w-3.5 h-3.5" />
-                            Confirmar
+                            Confirmar Sinal Pago
+                          </Button>
+                        )}
+
+                        {item.status === StatusAgendamento.Confirmado && (
+                          <Button
+                            size="sm"
+                            onClick={() => handleAtualizarStatus(item.id, StatusAgendamento.Concluido)}
+                            className="bg-slate-900 hover:bg-slate-800 text-white text-xs h-8 font-bold gap-1 shadow-xs"
+                            title="Finalizar e marcar atendimento como concluído"
+                          >
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                            Concluir Trança
                           </Button>
                         )}
 
                         {(item.status === StatusAgendamento.Agendado ||
                           item.status === StatusAgendamento.Confirmado) && (
-                          <>
-                            <Button
-                              size="sm"
-                              onClick={() => handleAtualizarStatus(item.id, StatusAgendamento.Concluido)}
-                              className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs h-8 font-medium gap-1"
-                            >
-                              <CheckCircle2 className="w-3.5 h-3.5" />
-                              Concluir
-                            </Button>
-
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                setAgendamentoParaCancelar(item.id);
-                                setModalCancelarAberto(true);
-                              }}
-                              className="text-xs h-8 text-slate-500 hover:text-red-600 border-slate-200"
-                            >
-                              Cancelar
-                            </Button>
-                          </>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setAgendamentoParaCancelar(item.id);
+                              setModalCancelarAberto(true);
+                            }}
+                            className="text-xs h-8 text-slate-500 hover:text-red-600 border-slate-200"
+                          >
+                            Cancelar
+                          </Button>
                         )}
                       </div>
                     </div>
@@ -682,6 +738,13 @@ export default function PaginaAgenda() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Modal: Ações e Modelos de Mensagem WhatsApp */}
+      <ModalAcoesWhatsApp
+        aberto={modalWhatsAppAberto}
+        onOpenChange={setModalWhatsAppAberto}
+        agendamento={agendamentoWhatsApp}
+      />
     </div>
   );
 }

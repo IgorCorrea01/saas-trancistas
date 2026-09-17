@@ -24,10 +24,14 @@ import {
   Building2,
   Clock,
   CalendarDays,
+  MessageCircle,
+  MapPin,
+  RotateCcw,
 } from "lucide-react";
 import { useEmpresaAtual, useAtualizarEmpresa } from "@/hooks/useEmpresa";
 import { useAutenticacao } from "@/hooks/useAutenticacao";
 import { usePerfilProfissional } from "@/hooks/usePerfilProfissional";
+import { useModelosWhatsApp } from "@/hooks/useModelosWhatsApp";
 import { Button } from "@/componentes/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/componentes/ui/card";
 import { Input } from "@/componentes/ui/input";
@@ -49,6 +53,7 @@ export default function PaginaConfiguracoes() {
   const { usuario, logout } = useAutenticacao();
   const { data: empresa, isLoading: carregandoEmpresa } = useEmpresaAtual();
   const { perfil, salvarPerfil } = usePerfilProfissional();
+  const { modelos, salvarModelos, restaurarPadroes } = useModelosWhatsApp();
   const atualizarEmpresaMutation = useAtualizarEmpresa();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -72,37 +77,54 @@ export default function PaginaConfiguracoes() {
   const [diasFuncionamento, setDiasFuncionamento] = useState<string[]>(["1", "2", "3", "4", "5", "6"]);
   const [intervaloMinutos, setIntervaloMinutos] = useState(60);
 
+  // WhatsApp Messages State
+  const [enderecoStudio, setEnderecoStudio] = useState("");
+  const [msgLembrete24h, setMsgLembrete24h] = useState("");
+  const [msgComoChegar, setMsgComoChegar] = useState("");
+  const [msgCuidadosPosTranca, setMsgCuidadosPosTranca] = useState("");
+  const [msgRetornoManutencao, setMsgRetornoManutencao] = useState("");
+
   const [copiado, setCopiado] = useState(false);
   const [copiadoPix, setCopiadoPix] = useState(false);
   const [mensagemSucesso, setMensagemSucesso] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (perfil) {
-      setNomeProfissional(perfil.nome || usuario?.nome || "");
-      setNomeStudio(empresa?.nome || perfil.nomeStudio || "");
-      setSlug(empresa?.slug || perfil.slug || "");
-      setFotoPerfil(perfil.fotoPerfil || "");
-      setBio(perfil.bio || "");
-      setInstagram(perfil.instagram || "");
-      setWhatsapp(perfil.whatsapp || "");
-      setTipoChavePix(perfil.tipoChavePix || "Celular");
-      setChavePix(perfil.chavePix || "");
-      setTitularPix(perfil.titularPix || "");
-      setBancoPix(perfil.bancoPix || "");
-    }
-  }, [perfil, empresa, usuario]);
+  const inicializadoRef = React.useRef(false);
 
   useEffect(() => {
-    if (empresa) {
-      if (empresa.horarioAbertura) setHorarioAbertura(empresa.horarioAbertura);
-      if (empresa.horarioFechamento) setHorarioFechamento(empresa.horarioFechamento);
-      if (empresa.diasFuncionamento) {
-        setDiasFuncionamento(empresa.diasFuncionamento.split(",").map((d) => d.trim()));
+    if (!inicializadoRef.current && (perfil || empresa)) {
+      if (empresa?.nome || perfil.nomeStudio) setNomeStudio(empresa?.nome || perfil.nomeStudio || "");
+      if (empresa?.slug || perfil.slug) setSlug(empresa?.slug || perfil.slug || "");
+      if (perfil.nome || usuario?.nome) setNomeProfissional(perfil.nome || usuario?.nome || "");
+      if (perfil.fotoPerfil) setFotoPerfil(perfil.fotoPerfil);
+      if (perfil.bio) setBio(perfil.bio);
+      if (perfil.instagram) setInstagram(perfil.instagram);
+      if (perfil.whatsapp) setWhatsapp(perfil.whatsapp);
+      if (perfil.tipoChavePix) setTipoChavePix(perfil.tipoChavePix);
+      if (perfil.chavePix) setChavePix(perfil.chavePix);
+      if (perfil.titularPix) setTitularPix(perfil.titularPix);
+      if (perfil.bancoPix) setBancoPix(perfil.bancoPix);
+
+      if (empresa) {
+        if (empresa.horarioAbertura) setHorarioAbertura(empresa.horarioAbertura);
+        if (empresa.horarioFechamento) setHorarioFechamento(empresa.horarioFechamento);
+        if (empresa.diasFuncionamento) {
+          setDiasFuncionamento(empresa.diasFuncionamento.split(",").map((d) => d.trim()));
+        }
+        if (empresa.intervaloMinutos) setIntervaloMinutos(empresa.intervaloMinutos);
       }
-      if (empresa.intervaloMinutos) setIntervaloMinutos(empresa.intervaloMinutos);
+
+      if (modelos) {
+        if (modelos.enderecoStudio) setEnderecoStudio(modelos.enderecoStudio);
+        if (modelos.lembrete24h) setMsgLembrete24h(modelos.lembrete24h);
+        if (modelos.comoChegar) setMsgComoChegar(modelos.comoChegar);
+        if (modelos.cuidadosPosTranca) setMsgCuidadosPosTranca(modelos.cuidadosPosTranca);
+        if (modelos.retornoManutencao) setMsgRetornoManutencao(modelos.retornoManutencao);
+      }
+
+      inicializadoRef.current = true;
     }
-  }, [empresa]);
+  }, [perfil, empresa, usuario, modelos]);
 
   const toggleDiaSemana = (idDia: string) => {
     setDiasFuncionamento((prev) =>
@@ -113,8 +135,11 @@ export default function PaginaConfiguracoes() {
   const normalizarSlug = (valor: string) => {
     return valor
       .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
       .replace(/\s+/g, "-")
-      .replace(/[^a-z0-9-]/g, "");
+      .replace(/[^a-z0-9-]/g, "")
+      .replace(/-+/g, "-");
   };
 
   const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -145,8 +170,9 @@ export default function PaginaConfiguracoes() {
       return;
     }
 
-    if (!slug.trim() || slug.length < 3) {
-      setErro("O slug do link deve ter pelo menos 3 caracteres.");
+    const slugFormatado = normalizarSlug(slug.trim()).replace(/^-+|-+$/g, "");
+    if (!slugFormatado || slugFormatado.length < 3) {
+      setErro("O link personalizado (slug) deve ter pelo menos 3 caracteres (apenas letras, números e hífens).");
       return;
     }
 
@@ -159,7 +185,7 @@ export default function PaginaConfiguracoes() {
       // 1. Salva dados de backend da Empresa com os horários de funcionamento
       await atualizarEmpresaMutation.mutateAsync({
         nome: nomeStudio.trim(),
-        slug: slug.trim(),
+        slug: slugFormatado,
         horarioAbertura,
         horarioFechamento,
         diasFuncionamento: diasFuncionamento.join(","),
@@ -170,7 +196,7 @@ export default function PaginaConfiguracoes() {
       salvarPerfil({
         nome: nomeProfissional.trim() || usuario?.nome || "Profissional",
         nomeStudio: nomeStudio.trim(),
-        slug: slug.trim(),
+        slug: slugFormatado,
         fotoPerfil,
         bio: bio.trim(),
         instagram: instagram.trim(),
@@ -181,6 +207,16 @@ export default function PaginaConfiguracoes() {
         bancoPix: bancoPix.trim(),
       });
 
+      // 3. Salva modelos personalizados de WhatsApp e endereço do Studio
+      salvarModelos({
+        enderecoStudio: enderecoStudio.trim(),
+        lembrete24h: msgLembrete24h.trim(),
+        comoChegar: msgComoChegar.trim(),
+        cuidadosPosTranca: msgCuidadosPosTranca.trim(),
+        retornoManutencao: msgRetornoManutencao.trim(),
+      });
+
+      setSlug(slugFormatado);
       setMensagemSucesso(true);
       setTimeout(() => setMensagemSucesso(false), 4000);
     } catch (err: any) {
@@ -188,7 +224,8 @@ export default function PaginaConfiguracoes() {
     }
   };
 
-  const urlCatalogo = typeof window !== "undefined" ? `${window.location.origin}/${slug}` : `/${slug}`;
+  const slugAtivo = slug.trim() || empresa?.slug || perfil.slug || "meu-studio";
+  const urlCatalogo = typeof window !== "undefined" ? `${window.location.origin}/${slugAtivo}` : `/${slugAtivo}`;
 
   const handleCopiarLink = () => {
     if (typeof window !== "undefined") {
@@ -434,7 +471,7 @@ export default function PaginaConfiguracoes() {
                       {copiado ? "Copiado!" : "Copiar Link"}
                     </Button>
                     <a
-                      href={`/${slug}`}
+                      href={`/${slugAtivo}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1 text-xs text-slate-600 hover:text-slate-900 font-medium px-2 py-1"
@@ -599,7 +636,7 @@ export default function PaginaConfiguracoes() {
               <label className="text-xs font-semibold text-slate-700 block">
                 Dias de Atendimento na Semana
               </label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2">
+              <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5 sm:gap-2">
                 {DIAS_SEMANA_OPCOES.map((dia) => {
                   const ativo = diasFuncionamento.includes(dia.id);
                   return (
@@ -607,7 +644,7 @@ export default function PaginaConfiguracoes() {
                       key={dia.id}
                       type="button"
                       onClick={() => toggleDiaSemana(dia.id)}
-                      className={`p-3 rounded-xl border text-center font-semibold text-xs transition-all ${
+                      className={`p-2 sm:p-3 rounded-xl border text-center font-semibold text-xs transition-all ${
                         ativo
                           ? "bg-purple-600 text-white border-purple-600 shadow-xs shadow-purple-200"
                           : "bg-slate-50 text-slate-500 border-slate-200 hover:border-purple-300 hover:bg-purple-50/50"
@@ -626,41 +663,41 @@ export default function PaginaConfiguracoes() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
-              <div className="space-y-1.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 pt-1">
+              <div className="space-y-1.5 min-w-0">
                 <label className="text-xs font-semibold text-slate-700">Horário de Abertura / Início</label>
-                <div className="relative">
-                  <Clock className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <div className="relative min-w-0">
+                  <Clock className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <Input
                     type="time"
                     value={horarioAbertura}
                     onChange={(e) => setHorarioAbertura(e.target.value)}
                     required
-                    className="rounded-xl pl-9"
+                    className="rounded-xl pl-9 w-full h-10 sm:h-11"
                   />
                 </div>
               </div>
 
-              <div className="space-y-1.5">
+              <div className="space-y-1.5 min-w-0">
                 <label className="text-xs font-semibold text-slate-700">Horário de Fechamento / Fim</label>
-                <div className="relative">
-                  <Clock className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <div className="relative min-w-0">
+                  <Clock className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <Input
                     type="time"
                     value={horarioFechamento}
                     onChange={(e) => setHorarioFechamento(e.target.value)}
                     required
-                    className="rounded-xl pl-9"
+                    className="rounded-xl pl-9 w-full h-10 sm:h-11"
                   />
                 </div>
               </div>
 
-              <div className="space-y-1.5">
+              <div className="space-y-1.5 min-w-0 sm:col-span-2 md:col-span-1">
                 <label className="text-xs font-semibold text-slate-700">Intervalo de Vagas</label>
                 <select
                   value={intervaloMinutos}
                   onChange={(e) => setIntervaloMinutos(Number(e.target.value))}
-                  className="w-full text-xs font-medium rounded-xl border border-slate-200 p-2.5 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                  className="w-full h-10 sm:h-11 text-xs font-medium rounded-xl border border-slate-200 px-3 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
                 >
                   <option value={30}>A cada 30 minutos</option>
                   <option value={60}>A cada 1 hora (Recomendado)</option>
@@ -678,6 +715,129 @@ export default function PaginaConfiguracoes() {
               <p className="text-[11px] text-purple-800 leading-relaxed">
                 Ao escolher um horário, o sistema calcula a duração total do modelo solicitado (ex: 4 horas) e não permite agendamentos que ultrapassem o fechamento ({horarioFechamento}) nem sobreposições.
               </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Card 5: Mensagens Prontas do WhatsApp & Endereço do Studio */}
+        <Card className="border-slate-200 rounded-2xl shadow-xs bg-white">
+          <CardHeader className="pb-4">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                  <MessageCircle className="w-4 h-4" />
+                </div>
+                <div>
+                  <CardTitle className="text-base font-bold text-slate-900">
+                    Mensagens Automáticas de WhatsApp & Endereço
+                  </CardTitle>
+                  <CardDescription className="text-xs">
+                    Personalize os textos dos disparos rápidos de lembretes, localização e guia de cuidados pós-trança.
+                  </CardDescription>
+                </div>
+              </div>
+
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  if (confirm("Deseja restaurar todos os modelos de mensagens para o padrão original?")) {
+                    restaurarPadroes();
+                  }
+                }}
+                className="text-xs h-8 text-slate-500 hover:text-slate-800 gap-1 rounded-xl"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                Restaurar Textos Padrão
+              </Button>
+            </div>
+          </CardHeader>
+
+          <CardContent className="space-y-4">
+            {/* Endereço do Studio */}
+            <div className="space-y-1.5 p-3.5 bg-slate-50 border border-slate-200 rounded-2xl">
+              <label className="text-xs font-semibold text-slate-800 flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5 text-rose-600" />
+                Endereço / Localização do Studio (ou Ponto de Referência)
+              </label>
+              <Input
+                value={enderecoStudio}
+                onChange={(e) => setEnderecoStudio(e.target.value)}
+                placeholder="Ex: Av. Paulista, 1000 - Sala 42, Bela Vista, São Paulo - SP (Próximo ao Metrô Trianon)"
+                className="rounded-xl bg-white text-xs"
+              />
+              <p className="text-[11px] text-slate-400">
+                Usado automaticamente quando você clica em &quot;Enviar Como Chegar&quot; para a cliente.
+              </p>
+            </div>
+
+            {/* Template 1: Lembrete 24h */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-700">
+                1. Mensagem de Lembrete 24h Antes do Atendimento
+              </label>
+              <textarea
+                value={msgLembrete24h}
+                onChange={(e) => setMsgLembrete24h(e.target.value)}
+                rows={3}
+                className="w-full text-xs rounded-xl border border-slate-200 p-3 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-white leading-relaxed"
+                placeholder="Texto do lembrete..."
+              />
+              <span className="text-[10px] text-slate-400 font-mono block">
+                Variáveis disponíveis: &#123;nomeCliente&#125;, &#123;nomeStudio&#125;, &#123;nomeServico&#125;, &#123;dataAtendimento&#125;, &#123;horario&#125;, &#123;valorRestante&#125;
+              </span>
+            </div>
+
+            {/* Template 2: Como Chegar */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-700">
+                2. Mensagem de Como Chegar / Endereço
+              </label>
+              <textarea
+                value={msgComoChegar}
+                onChange={(e) => setMsgComoChegar(e.target.value)}
+                rows={3}
+                className="w-full text-xs rounded-xl border border-slate-200 p-3 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-white leading-relaxed"
+                placeholder="Texto de localização..."
+              />
+              <span className="text-[10px] text-slate-400 font-mono block">
+                Variáveis disponíveis: &#123;nomeCliente&#125;, &#123;nomeStudio&#125;, &#123;enderecoStudio&#125;
+              </span>
+            </div>
+
+            {/* Template 3: Guia de Cuidados Pós-Trança */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-700">
+                3. Guia de Cuidados Pós-Trança (Enviado após finalizar o serviço)
+              </label>
+              <textarea
+                value={msgCuidadosPosTranca}
+                onChange={(e) => setMsgCuidadosPosTranca(e.target.value)}
+                rows={5}
+                className="w-full text-xs rounded-xl border border-slate-200 p-3 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-white leading-relaxed"
+                placeholder="Dicas de cuidados..."
+              />
+              <span className="text-[10px] text-slate-400 font-mono block">
+                Variáveis disponíveis: &#123;nomeCliente&#125;, &#123;nomeServico&#125;, &#123;nomeStudio&#125;
+              </span>
+            </div>
+
+            {/* Template 4: Retorno / Manutenção */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-700">
+                4. Mensagem de Fidelização / Retorno (30 a 45 dias depois)
+              </label>
+              <textarea
+                value={msgRetornoManutencao}
+                onChange={(e) => setMsgRetornoManutencao(e.target.value)}
+                rows={3}
+                className="w-full text-xs rounded-xl border border-slate-200 p-3 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-white leading-relaxed"
+                placeholder="Convite para retorno..."
+              />
+              <span className="text-[10px] text-slate-400 font-mono block">
+                Variáveis disponíveis: &#123;nomeCliente&#125;, &#123;nomeServico&#125;, &#123;nomeStudio&#125;, &#123;urlCatalogo&#125;
+              </span>
             </div>
           </CardContent>
         </Card>

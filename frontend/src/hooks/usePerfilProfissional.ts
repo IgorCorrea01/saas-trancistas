@@ -49,7 +49,7 @@ export function usePerfilProfissional() {
             ...dados,
             nome: dados.nome || usuario?.nome || prev.nome,
             nomeStudio: dados.nomeStudio || usuario?.nomeEmpresa || prev.nomeStudio,
-            slug: dados.slug || usuario?.slugEmpresa || prev.slug,
+            slug: usuario?.slugEmpresa || dados.slug || prev.slug,
           }));
         } else if (usuario) {
           setPerfil((prev) => ({

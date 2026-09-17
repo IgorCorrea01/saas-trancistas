@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { empresasApi } from "@/servicos/api/empresasApi";
 import { AtualizarEmpresaRequisicao } from "@/tipos/empresa";
+import { CHAVE_STORAGE_USUARIO } from "@/utilitarios/constantes";
 
 export function useEmpresaAtual() {
   return useQuery({
@@ -16,15 +17,17 @@ export function useAtualizarEmpresa() {
     onSuccess: (empresaAtualizada) => {
       queryClient.invalidateQueries({ queryKey: ["empresa-atual"] });
       // Atualiza usuário salvo no localStorage se o slug/nome mudou
-      const usuarioArmazenado = localStorage.getItem("@trancas:usuario");
-      if (usuarioArmazenado) {
-        try {
-          const usuario = JSON.parse(usuarioArmazenado);
-          usuario.empresaNome = empresaAtualizada.nome;
-          usuario.empresaSlug = empresaAtualizada.slug;
-          localStorage.setItem("@trancas:usuario", JSON.stringify(usuario));
-        } catch {
-          // ignore
+      if (typeof window !== "undefined") {
+        const usuarioArmazenado = localStorage.getItem(CHAVE_STORAGE_USUARIO);
+        if (usuarioArmazenado) {
+          try {
+            const usuario = JSON.parse(usuarioArmazenado);
+            usuario.nomeEmpresa = empresaAtualizada.nome;
+            usuario.slugEmpresa = empresaAtualizada.slug;
+            localStorage.setItem(CHAVE_STORAGE_USUARIO, JSON.stringify(usuario));
+          } catch {
+            // ignore
+          }
         }
       }
     },
