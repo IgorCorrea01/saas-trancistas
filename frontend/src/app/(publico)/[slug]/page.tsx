@@ -28,29 +28,6 @@ import {
   Check,
 } from "lucide-react";
 
-const CATEGORIAS_TRANCA = [
-  { id: "todas", rotulo: "Todas", icone: "✨" },
-  { id: "box-braids", rotulo: "Box Braids & French", icone: "👑" },
-  { id: "nago", rotulo: "Nagô & Tribal", icone: "⚡" },
-  { id: "boho-goddess", rotulo: "Gypsy & Goddess", icone: "🌸" },
-  { id: "twist", rotulo: "Twist & Passion", icone: "🌀" },
-  { id: "entrelace", rotulo: "Entrelace & Crochet", icone: "💇‍♀️" },
-  { id: "dreads", rotulo: "Dreads & Locs", icone: "🔥" },
-  { id: "penteados", rotulo: "Penteados & Cuidados", icone: "🎀" },
-] as const;
-
-function detectarCategoria(nome: string, descricao?: string): string {
-  const texto = `${nome} ${descricao || ""}`.toLowerCase();
-  if (texto.includes("boho") || texto.includes("gypsy") || texto.includes("goddess") || texto.includes("cachos")) return "boho-goddess";
-  if (texto.includes("box") || texto.includes("knotless") || texto.includes("chanel") || texto.includes("french curl") || texto.includes("boxeadora")) return "box-braids";
-  if (texto.includes("nagô") || texto.includes("nago") || texto.includes("raiz") || texto.includes("desenhada") || texto.includes("lateral") || texto.includes("topo") || texto.includes("fulani") || texto.includes("tribal")) return "nago";
-  if (texto.includes("twist") || texto.includes("marley") || texto.includes("passion") || texto.includes("senegalese") || texto.includes("havana")) return "twist";
-  if (texto.includes("entrelace") || texto.includes("crochet") || texto.includes("orgânic") || texto.includes("organic") || texto.includes("bio vegetal") || texto.includes("bio-vegetal")) return "entrelace";
-  if (texto.includes("dread") || texto.includes("locs") || texto.includes("butterfly") || texto.includes("soft locs")) return "dreads";
-  if (texto.includes("penteado") || texto.includes("infantil") || texto.includes("coque") || texto.includes("rabo") || texto.includes("tiara") || texto.includes("retirada") || texto.includes("lavagem") || texto.includes("cuidado")) return "penteados";
-  return "outros";
-}
-
 export default function PaginaCatalogoPublico({
   params,
 }: {
@@ -61,7 +38,6 @@ export default function PaginaCatalogoPublico({
   const { perfil } = usePerfilProfissional();
 
   const [busca, setBusca] = useState("");
-  const [categoriaAtiva, setCategoriaAtiva] = useState<string>("todas");
 
   const nomeEstudioFormatado =
     slug
@@ -80,28 +56,20 @@ export default function PaginaCatalogoPublico({
   const instagramExibicao = perfil.slug === slug ? perfil.instagram : "";
   const whatsappExibicao = perfil.slug === slug ? perfil.whatsapp : "";
 
-  // Filtra serviços por busca e categoria
+  // Filtra serviços por busca
   const servicosFiltrados = useMemo(() => {
     if (!servicos) return [];
     
     return servicos.filter((s) => {
-      // Filtro por categoria
-      if (categoriaAtiva !== "todas") {
-        const cat = detectarCategoria(s.nome, s.descricao);
-        if (cat !== categoriaAtiva) return false;
-      }
-
-      // Filtro por termo de busca
       if (busca.trim()) {
         const termo = busca.toLowerCase();
         const bateNome = s.nome.toLowerCase().includes(termo);
         const bateDescricao = s.descricao && s.descricao.toLowerCase().includes(termo);
         if (!bateNome && !bateDescricao) return false;
       }
-
       return true;
     });
-  }, [servicos, busca, categoriaAtiva]);
+  }, [servicos, busca]);
 
   if (isLoading) {
     return (
@@ -254,25 +222,6 @@ export default function PaginaCatalogoPublico({
                 Limpar
               </button>
             )}
-          </div>
-
-          {/* Carrossel de Categorias */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1.5 pt-0.5 no-scrollbar">
-            {CATEGORIAS_TRANCA.map((cat) => (
-              <button
-                key={cat.id}
-                type="button"
-                onClick={() => setCategoriaAtiva(cat.id)}
-                className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all shrink-0 ${
-                  categoriaAtiva === cat.id
-                    ? "bg-rose-600 text-white shadow-xs"
-                    : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
-                }`}
-              >
-                <span>{cat.icone}</span>
-                <span>{cat.rotulo}</span>
-              </button>
-            ))}
           </div>
 
           <div className="flex items-center justify-between px-1 text-xs text-slate-500 font-medium">
