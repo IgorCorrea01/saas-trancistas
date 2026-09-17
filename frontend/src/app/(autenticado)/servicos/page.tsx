@@ -408,9 +408,44 @@ export default function PaginaServicos() {
           )}
 
           <form onSubmit={handleSalvar} className="space-y-4 py-2">
+            {/* Sugestões Rápidas de Categorias */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-700 flex items-center justify-between">
+                <span>Tipo de Trança / Categoria</span>
+                <span className="text-[10px] text-slate-400 font-normal">Clique para preencher modelo</span>
+              </label>
+              <div className="flex flex-wrap gap-1.5 pb-1">
+                {[
+                  { label: "Box Braids", defaultNome: "Box Braids Tradicionais", dur: 360, preco: 250 },
+                  { label: "Knotless", defaultNome: "Knotless Braids Sem Nó", dur: 420, preco: 320 },
+                  { label: "French Curl", defaultNome: "French Curl Braids", dur: 420, preco: 350 },
+                  { label: "Nagô / Tiara", defaultNome: "Nagô / Trança Rasteira", dur: 180, preco: 120 },
+                  { label: "Fulani / Tribal", defaultNome: "Fulani Braids (Tribal)", dur: 360, preco: 300 },
+                  { label: "Gypsy / Boho", defaultNome: "Gypsy / Boho Braids", dur: 480, preco: 380 },
+                  { label: "Goddess Braids", defaultNome: "Goddess Braids", dur: 420, preco: 340 },
+                  { label: "Twist", defaultNome: "Twist / Passion Twist", dur: 360, preco: 280 },
+                  { label: "Faux Locs", defaultNome: "Faux Locs / Butterfly", dur: 420, preco: 360 },
+                  { label: "Entrelace", defaultNome: "Entrelace / Crochet Braids", dur: 240, preco: 200 },
+                ].map((sugestao) => (
+                  <button
+                    key={sugestao.label}
+                    type="button"
+                    onClick={() => {
+                      setNome(sugestao.defaultNome);
+                      if (!duracaoMinutos || duracaoMinutos === 360) setDuracaoMinutos(sugestao.dur);
+                      if (!precoBase || precoBase === 0) setPrecoBase(sugestao.preco);
+                    }}
+                    className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-rose-100 hover:text-rose-900 border border-slate-200/80 text-[11px] font-medium text-slate-700 transition-colors"
+                  >
+                    + {sugestao.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-slate-700">
-                Nome do Modelo *
+                Nome do Serviço / Trança *
               </label>
               <Input
                 type="text"

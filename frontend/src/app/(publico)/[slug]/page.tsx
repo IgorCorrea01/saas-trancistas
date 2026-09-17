@@ -30,22 +30,24 @@ import {
 
 const CATEGORIAS_TRANCA = [
   { id: "todas", rotulo: "Todas", icone: "✨" },
-  { id: "box-braids", rotulo: "Box Braids", icone: "👑" },
-  { id: "nago", rotulo: "Nagô / Raiz", icone: "⚡" },
-  { id: "twist", rotulo: "Twist & Marley", icone: "🌀" },
-  { id: "entrelace", rotulo: "Entrelace / Crochet", icone: "💇‍♀️" },
+  { id: "box-braids", rotulo: "Box Braids & French", icone: "👑" },
+  { id: "nago", rotulo: "Nagô & Tribal", icone: "⚡" },
+  { id: "boho-goddess", rotulo: "Gypsy & Goddess", icone: "🌸" },
+  { id: "twist", rotulo: "Twist & Passion", icone: "🌀" },
+  { id: "entrelace", rotulo: "Entrelace & Crochet", icone: "💇‍♀️" },
   { id: "dreads", rotulo: "Dreads & Locs", icone: "🔥" },
-  { id: "penteados", rotulo: "Penteados & Infantil", icone: "🎀" },
+  { id: "penteados", rotulo: "Penteados & Cuidados", icone: "🎀" },
 ] as const;
 
 function detectarCategoria(nome: string, descricao?: string): string {
   const texto = `${nome} ${descricao || ""}`.toLowerCase();
-  if (texto.includes("box") || texto.includes("knotless") || texto.includes("chanel") || texto.includes("boxeadora")) return "box-braids";
-  if (texto.includes("nagô") || texto.includes("nago") || texto.includes("raiz") || texto.includes("desenhada") || texto.includes("lateral") || texto.includes("topo")) return "nago";
-  if (texto.includes("twist") || texto.includes("marley") || texto.includes("passion") || texto.includes("senegalese")) return "twist";
+  if (texto.includes("boho") || texto.includes("gypsy") || texto.includes("goddess") || texto.includes("cachos")) return "boho-goddess";
+  if (texto.includes("box") || texto.includes("knotless") || texto.includes("chanel") || texto.includes("french curl") || texto.includes("boxeadora")) return "box-braids";
+  if (texto.includes("nagô") || texto.includes("nago") || texto.includes("raiz") || texto.includes("desenhada") || texto.includes("lateral") || texto.includes("topo") || texto.includes("fulani") || texto.includes("tribal")) return "nago";
+  if (texto.includes("twist") || texto.includes("marley") || texto.includes("passion") || texto.includes("senegalese") || texto.includes("havana")) return "twist";
   if (texto.includes("entrelace") || texto.includes("crochet") || texto.includes("orgânic") || texto.includes("organic") || texto.includes("bio vegetal") || texto.includes("bio-vegetal")) return "entrelace";
-  if (texto.includes("dread") || texto.includes("locs") || texto.includes("gypsy") || texto.includes("butterfly")) return "dreads";
-  if (texto.includes("penteado") || texto.includes("infantil") || texto.includes("coque") || texto.includes("rabo") || texto.includes("tiara")) return "penteados";
+  if (texto.includes("dread") || texto.includes("locs") || texto.includes("butterfly") || texto.includes("soft locs")) return "dreads";
+  if (texto.includes("penteado") || texto.includes("infantil") || texto.includes("coque") || texto.includes("rabo") || texto.includes("tiara") || texto.includes("retirada") || texto.includes("lavagem") || texto.includes("cuidado")) return "penteados";
   return "outros";
 }
 
