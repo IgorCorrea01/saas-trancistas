@@ -103,3 +103,13 @@ export function obterUrlImagem(caminho?: string | null): string {
   const caminhoLimpo = caminho.replace(/^\/+/, "");
   return `${API_BASE_URL}/api/arquivos/${caminhoLimpo}`;
 }
+
+export function formatarSlug(texto: string): string {
+  if (!texto) return "";
+  return texto
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // Remove acentos
+    .replace(/[^a-z0-9]+/g, "-") // Converte espaços e caracteres especiais em hífens
+    .replace(/^-+|-+$/g, ""); // Remove hífens no início e no final
+}

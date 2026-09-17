@@ -38,6 +38,7 @@ import { Input } from "@/componentes/ui/input";
 import { Badge } from "@/componentes/ui/badge";
 import { Skeleton } from "@/componentes/ui/skeleton";
 import { Separator } from "@/componentes/ui/separator";
+import { formatarSlug } from "@/utilitarios/formatadores";
 
 const DIAS_SEMANA_OPCOES = [
   { id: "1", nome: "Segunda", sigla: "Seg" },
@@ -132,18 +133,8 @@ export default function PaginaConfiguracoes() {
     );
   };
 
-  const normalizarSlug = (valor: string) => {
-    return valor
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/\s+/g, "-")
-      .replace(/[^a-z0-9-]/g, "")
-      .replace(/-+/g, "-");
-  };
-
   const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSlug(normalizarSlug(e.target.value));
+    setSlug(formatarSlug(e.target.value));
   };
 
   const handleFotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -170,7 +161,7 @@ export default function PaginaConfiguracoes() {
       return;
     }
 
-    const slugFormatado = normalizarSlug(slug.trim()).replace(/^-+|-+$/g, "");
+    const slugFormatado = formatarSlug(slug.trim());
     if (!slugFormatado || slugFormatado.length < 3) {
       setErro("O link personalizado (slug) deve ter pelo menos 3 caracteres (apenas letras, números e hífens).");
       return;

@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { esquemaRegistro, FormularioRegistroDados } from "@/validacoes/autenticacao";
 import { useAutenticacao } from "@/hooks/useAutenticacao";
 import { extrairMensagemErro } from "@/servicos/api/clienteApi";
+import { formatarSlug } from "@/utilitarios/formatadores";
 import { Button } from "@/componentes/ui/button";
 import { Input } from "@/componentes/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/componentes/ui/card";
@@ -15,6 +16,7 @@ import { Sparkles, AlertCircle, ArrowLeft, Globe } from "lucide-react";
 export default function PaginaRegistro() {
   const { registrar: cadastrar } = useAutenticacao();
   const [erroApi, setErroApi] = useState<string | null>(null);
+  const [slugModificadoManualmente, setSlugModificadoManualmente] = useState(false);
 
   const {
     register,
@@ -28,19 +30,18 @@ export default function PaginaRegistro() {
 
   const slugAtual = watch("slug") || "";
 
-  // Auxilia na sugestão automática de slug a partir do nome do estúdio
+  // Auxilia na sugestao automatica de slug a partir do nome do estudio
   const handleNomeEmpresaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const nome = e.target.value;
-    setValue("nomeEmpresa", nome);
-    if (!slugAtual || slugAtual === "") {
-      const slugSugerido = nome
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-+|-+$/g, "");
-      setValue("slug", slugSugerido, { shouldValidate: true });
+    setValue("nomeEmpresa", nome, { shouldValidate: true });
+    if (!slugModificadoManualmente) {
+      setValue("slug", formatarSlug(nome), { shouldValidate: true });
     }
+  };
+
+  const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSlugModificadoManualmente(true);
+    setValue("slug", formatarSlug(e.target.value), { shouldValidate: true });
   };
 
   const onSubmit = async (dados: FormularioRegistroDados) => {
@@ -111,7 +112,7 @@ export default function PaginaRegistro() {
                     type="text"
                     placeholder="studio-afro-queen"
                     erro={!!errors.slug}
-                    {...register("slug")}
+                    {...register("slug", { onChange: handleSlugChange })}
                   />
                 </div>
                 {errors.slug ? (

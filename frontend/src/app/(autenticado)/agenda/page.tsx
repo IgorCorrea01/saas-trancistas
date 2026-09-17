@@ -52,8 +52,10 @@ import {
   DialogFooter,
 } from "@/componentes/ui/dialog";
 import { ModalAcoesWhatsApp, DadosAgendamentoWhatsApp } from "@/componentes/whatsapp/ModalAcoesWhatsApp";
+import { extrairMensagemErro } from "@/servicos/api/clienteApi";
 
 export default function PaginaAgenda() {
+  const [erroFeedback, setErroFeedback] = useState<string | null>(null);
   const [dataFiltro, setDataFiltro] = useState<string>(() => {
     return new Date().toISOString().split("T")[0];
   });
@@ -127,6 +129,7 @@ export default function PaginaAgenda() {
 
   const handleAtualizarStatus = async (id: string, status: StatusAgendamento, motivo?: string) => {
     try {
+      setErroFeedback(null);
       await atualizarStatusMutation.mutateAsync({
         id,
         dados: { status, motivo },
@@ -137,7 +140,7 @@ export default function PaginaAgenda() {
         setMotivoCancelamento("");
       }
     } catch (err: any) {
-      alert(err?.response?.data?.mensagem || "Erro ao atualizar status do agendamento.");
+      setErroFeedback(extrairMensagemErro(err));
     }
   };
 
@@ -146,6 +149,7 @@ export default function PaginaAgenda() {
     if (!bloqueioInicio || !bloqueioFim || !bloqueioMotivo.trim()) return;
 
     try {
+      setErroFeedback(null);
       await criarBloqueioMutation.mutateAsync({
         dataInicio: new Date(bloqueioInicio).toISOString(),
         dataFim: new Date(bloqueioFim).toISOString(),
@@ -156,13 +160,16 @@ export default function PaginaAgenda() {
       setBloqueioFim("");
       setBloqueioMotivo("");
     } catch (err: any) {
-      alert(err?.response?.data?.mensagem || "Erro ao criar bloqueio na agenda.");
+      setErroFeedback(extrairMensagemErro(err));
     }
   };
 
   const handleRemoverBloqueio = async (id: string) => {
-    if (confirm("Tem certeza que deseja remover este bloqueio de horário?")) {
+    try {
+      setErroFeedback(null);
       await removerBloqueioMutation.mutateAsync(id);
+    } catch (err: any) {
+      setErroFeedback(extrairMensagemErro(err));
     }
   };
 
@@ -234,6 +241,23 @@ export default function PaginaAgenda() {
           </Button>
         </div>
       </div>
+
+      {erroFeedback && (
+        <div className="p-3.5 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-sm flex items-center justify-between gap-2.5 animate-in fade-in-50">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="h-4 w-4 shrink-0" />
+            <span>{erroFeedback}</span>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setErroFeedback(null)}
+            className="h-7 px-2 text-xs text-destructive hover:bg-destructive/10"
+          >
+            Fechar
+          </Button>
+        </div>
+      )}
 
       {/* Navigation & Filters Bar */}
       <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-3 shadow-xs">

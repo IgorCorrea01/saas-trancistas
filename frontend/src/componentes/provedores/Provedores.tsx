@@ -10,7 +10,8 @@ export function Provedores({ children }: { children: React.ReactNode }) {
       new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: 1000 * 60 * 2, // 2 minutos de cache
+            staleTime: 1000 * 30, // 30 segundos de cache ativo
+            gcTime: 1000 * 60 * 10, // 10 minutos para coleta de lixo
             refetchOnWindowFocus: false, // Evita refetch agressivo no mobile
             retry: 1,
           },

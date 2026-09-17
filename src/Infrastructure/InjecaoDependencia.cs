@@ -108,14 +108,16 @@ public static class InjecaoDependencia
         if (string.IsNullOrWhiteSpace(rawConnectionString))
             return rawConnectionString;
 
-        // Se a string começar com postgres:// ou postgresql:// (URI comum do Neon, Supabase, Render)
-        if (rawConnectionString.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase) ||
-            rawConnectionString.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase))
+        try
         {
-            try
+            Npgsql.NpgsqlConnectionStringBuilder builder;
+
+            // Se a string começar com postgres:// ou postgresql:// (URI comum do Neon, Supabase, Render)
+            if (rawConnectionString.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase) ||
+                rawConnectionString.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase))
             {
                 var uri = new Uri(rawConnectionString);
-                var builder = new Npgsql.NpgsqlConnectionStringBuilder
+                builder = new Npgsql.NpgsqlConnectionStringBuilder
                 {
                     Host = uri.Host,
                     Port = uri.Port > 0 ? uri.Port : 5432,
@@ -128,15 +130,24 @@ public static class InjecaoDependencia
                     builder.Username = Uri.UnescapeDataString(userInfo[0]);
                 if (userInfo.Length > 1 && !string.IsNullOrWhiteSpace(userInfo[1]))
                     builder.Password = Uri.UnescapeDataString(userInfo[1]);
-
-                return builder.ConnectionString;
             }
-            catch
+            else
             {
-                return rawConnectionString;
+                builder = new Npgsql.NpgsqlConnectionStringBuilder(rawConnectionString);
             }
-        }
 
-        return rawConnectionString;
+            // Otimizações para ambiente Serverless e Neon PostgreSQL
+            builder.Pooling = true;
+            builder.MinPoolSize = 0;
+            builder.MaxPoolSize = 20;
+            builder.ConnectionLifetime = 300; // 5 minutos
+            builder.CommandTimeout = 30;
+
+            return builder.ConnectionString;
+        }
+        catch
+        {
+            return rawConnectionString;
+        }
     }
 }
