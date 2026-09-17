@@ -17,13 +17,18 @@ export function CabecalhoPainel() {
   return (
     <header className="h-16 border-b border-border/80 bg-card/60 backdrop-blur-sm sticky top-0 z-20 px-4 sm:px-8 flex items-center justify-between gap-3">
       <div className="flex items-center gap-2 min-w-0">
-        <div className="flex items-center gap-2 min-w-0">
-          <div className="h-8 w-8 rounded-xl bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm shrink-0">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="h-8 w-8 rounded-xl bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm shrink-0 shadow-xs">
             <Sparkles className="h-4 w-4" />
           </div>
-          <span className="font-bold text-sm text-foreground truncate max-w-[260px] sm:max-w-md lg:max-w-xl">
-            {nomeStudioExibicao}
-          </span>
+          <div className="flex flex-col min-w-0">
+            <span className="font-bold text-sm text-foreground truncate max-w-[200px] sm:max-w-xs md:max-w-md">
+              {nomeStudioExibicao}
+            </span>
+            <span className="text-[10px] text-muted-foreground hidden sm:block">
+              Painel TrançaFlow
+            </span>
+          </div>
         </div>
       </div>
 

@@ -166,7 +166,7 @@ export default function PaginaInicial() {
                               Online
                             </Badge>
                           </div>
-                          <p className="text-[11px] text-slate-500">trancas.app/isa-braids</p>
+                          <p className="text-[11px] text-slate-500 font-mono">trancaflow.app/isa-braids</p>
                         </div>
                       </div>
                       <span className="text-[11px] text-rose-700 font-semibold">Catálogo</span>
@@ -842,7 +842,7 @@ export default function PaginaInicial() {
                     Começar agora
                   </Link>
                 </Button>
-                <Button asChild variant="outline" size="lg" className="w-full sm:w-auto h-13 px-6 text-base font-semibold border-white/30 text-white hover:bg-white/10 rounded-xl">
+                <Button asChild size="lg" className="w-full sm:w-auto h-13 px-7 text-base font-semibold border-2 border-white/40 bg-white/10 text-white hover:bg-white/25 hover:text-white rounded-xl backdrop-blur-xs transition-colors">
                   <Link href="/login">
                     Já possuo conta
                   </Link>

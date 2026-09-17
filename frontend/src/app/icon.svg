@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <defs>
+    <linearGradient id="tfGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#9f1239" />
+      <stop offset="50%" stop-color="#be123c" />
+      <stop offset="100%" stop-color="#881337" />
+    </linearGradient>
+    <linearGradient id="sparkleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a" />
+      <stop offset="100%" stop-color="#f59e0b" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Rounded Base Background -->
+  <rect width="32" height="32" rx="9" fill="url(#tfGradient)" />
+  
+  <!-- Stylized Trança / Braid Curves (Gold / Rose) -->
+  <path d="M12 6 C16 9, 16 13, 12 16 C8 19, 8 23, 12 26" fill="none" stroke="#fecdd3" stroke-width="2.2" stroke-linecap="round" />
+  <path d="M20 6 C16 9, 16 13, 20 16 C24 19, 24 23, 20 26" fill="none" stroke="#ffe4e6" stroke-width="2.2" stroke-linecap="round" />
+  <path d="M16 8 C18 11, 18 15, 16 18 C14 21, 14 24, 16 26" fill="none" stroke="url(#sparkleGrad)" stroke-width="2" stroke-linecap="round" opacity="0.9" />
+  
+  <!-- Top Right Sparkle Star -->
+  <path d="M24 5 L24.8 7.2 L27 8 L24.8 8.8 L24 11 L23.2 8.8 L21 8 L23.2 7.2 Z" fill="url(#sparkleGrad)" />
+</svg>

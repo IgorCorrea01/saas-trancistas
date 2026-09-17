@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import {
   Calendar as CalendarIcon,
@@ -506,9 +507,16 @@ export default function PaginaAgendamentoPublico() {
           </div>
         )}
 
-        <div className="text-center pt-2 pb-6">
+        <div className="text-center pt-2 pb-6 space-y-1">
           <p className="text-[11px] text-slate-400">
             {orcamento.nomeEmpresa} • Agendamento Inteligente sem Conflitos
+          </p>
+          <p className="text-[10px] text-slate-400">
+            Powered by{" "}
+            <Link href="/" className="font-bold text-rose-800 hover:underline inline-flex items-center gap-0.5">
+              <Sparkles className="h-2.5 w-2.5 inline" />
+              TrançaFlow
+            </Link>
           </p>
         </div>
       </div>

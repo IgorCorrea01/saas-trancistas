@@ -64,17 +64,17 @@ export function SidebarDesktop() {
   return (
     <aside className="hidden md:flex w-64 flex-col fixed inset-y-0 left-0 bg-card border-r border-border/80 z-30">
       {/* Brand */}
-      <div className="h-16 flex items-center px-6 border-b border-border/60">
-        <div className="flex items-center gap-2.5">
-          <div className="h-9 w-9 rounded-xl bg-primary text-primary-foreground flex items-center justify-center font-bold text-lg shadow-sm">
-            <Sparkles className="h-5 w-5" />
+      <div className="h-16 flex items-center px-5 border-b border-border/60">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="h-9 w-9 rounded-xl bg-primary text-primary-foreground flex items-center justify-center font-bold text-lg shadow-xs shrink-0">
+            <Sparkles className="h-4 w-4" />
           </div>
           <div className="flex flex-col overflow-hidden">
-            <span className="font-bold text-sm tracking-tight text-foreground truncate">
-              {studioExibicao}
+            <span className="font-extrabold text-sm tracking-tight text-foreground truncate">
+              Trança<span className="text-primary">Flow</span>
             </span>
-            <span className="text-xs text-muted-foreground truncate">
-              Painel Profissional
+            <span className="text-[11px] font-medium text-muted-foreground truncate">
+              {studioExibicao}
             </span>
           </div>
         </div>

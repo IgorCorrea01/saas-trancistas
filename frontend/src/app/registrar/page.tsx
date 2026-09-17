@@ -148,13 +148,13 @@ export default function PaginaRegistro() {
                     {errors.slug.message}
                   </p>
                 ) : (
-                  <div className="p-2.5 rounded-lg bg-secondary/50 border border-border/60 text-xs text-muted-foreground flex items-center justify-between">
-                    <span className="flex items-center gap-1">
-                      <Globe className="h-3.5 w-3.5 text-primary" />
+                  <div className="p-3 rounded-xl bg-secondary/50 border border-border/60 text-xs text-muted-foreground flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <span className="flex items-center gap-1.5 font-medium">
+                      <Globe className="h-4 w-4 text-primary shrink-0" />
                       Link do seu catálogo:
                     </span>
-                    <span className="font-bold text-foreground">
-                      /{slugAtual || "seu-link"}
+                    <span className="font-mono font-bold text-foreground bg-background px-2.5 py-1 rounded-lg border border-border/60 break-all text-xs">
+                      trancaflow.app/{slugAtual || "seu-studio"}
                     </span>
                   </div>
                 )}

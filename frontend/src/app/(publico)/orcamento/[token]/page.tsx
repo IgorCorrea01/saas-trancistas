@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import {
   Sparkles,
@@ -399,9 +400,16 @@ export default function PaginaOrcamentoPublico() {
         )}
 
         {/* Security / Trust Footer */}
-        <div className="text-center pt-4 pb-8 space-y-2">
+        <div className="text-center pt-4 pb-8 space-y-1">
           <p className="text-[11px] text-slate-400">
             Ambiente seguro e verificado • {orcamento.nomeEmpresa}
+          </p>
+          <p className="text-[10px] text-slate-400">
+            Powered by{" "}
+            <Link href="/" className="font-bold text-rose-800 hover:underline inline-flex items-center gap-0.5">
+              <Sparkles className="h-2.5 w-2.5 inline" />
+              TrançaFlow
+            </Link>
           </p>
         </div>
       </div>

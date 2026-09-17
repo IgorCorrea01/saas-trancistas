@@ -38,7 +38,8 @@ export const metadata: Metadata = {
     title: "TrançaFlow",
   },
   icons: {
-    icon: "/favicon.ico",
+    icon: "/icon.svg",
+    apple: "/icon.svg",
   },
 };
 
@@ -47,7 +48,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: "#e11d48",
+  themeColor: "#9f1239",
 };
 
 export default function RootLayout({

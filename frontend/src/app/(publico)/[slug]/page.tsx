@@ -375,8 +375,12 @@ export default function PaginaCatalogoPublico({
 
         <footer className="text-center text-[11px] text-slate-400 pt-2 pb-6 space-y-1">
           <p>{nomeExibicao} • Catálogo Oficial de Tranças</p>
-          <p className="text-[10px] text-slate-300">
-            Powered by Trancas SaaS
+          <p className="text-[10px] text-slate-400">
+            Powered by{" "}
+            <Link href="/" className="font-bold text-rose-800 hover:underline inline-flex items-center gap-0.5">
+              <Sparkles className="h-2.5 w-2.5 inline" />
+              TrançaFlow
+            </Link>
           </p>
         </footer>
       </div>
