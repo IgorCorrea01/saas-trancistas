@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 
@@ -45,7 +45,11 @@ export function useModelosWhatsApp() {
     setModelos((prev) => {
       const atualizado = { ...prev, ...novosModelos };
       if (typeof window !== "undefined") {
-        localStorage.setItem(CHAVE_STORAGE_WHATSAPP, JSON.stringify(atualizado));
+        try {
+          localStorage.setItem(CHAVE_STORAGE_WHATSAPP, JSON.stringify(atualizado));
+        } catch (err) {
+          console.warn("Não foi possível salvar modelos WhatsApp no localStorage:", err);
+        }
       }
       return atualizado;
     });
@@ -54,7 +58,11 @@ export function useModelosWhatsApp() {
   const restaurarPadroes = () => {
     setModelos(MODELOS_PADRAO_WHATSAPP);
     if (typeof window !== "undefined") {
-      localStorage.setItem(CHAVE_STORAGE_WHATSAPP, JSON.stringify(MODELOS_PADRAO_WHATSAPP));
+      try {
+        localStorage.setItem(CHAVE_STORAGE_WHATSAPP, JSON.stringify(MODELOS_PADRAO_WHATSAPP));
+      } catch (err) {
+        console.warn("Não foi possível restaurar modelos WhatsApp no localStorage:", err);
+      }
     }
   };
 

@@ -39,6 +39,48 @@ import { Badge } from "@/componentes/ui/badge";
 import { Skeleton } from "@/componentes/ui/skeleton";
 import { Separator } from "@/componentes/ui/separator";
 import { formatarSlug } from "@/utilitarios/formatadores";
+import { extrairMensagemErro } from "@/servicos/api/clienteApi";
+
+async function comprimirImagemParaAvatar(arquivo: File, maxDimensao = 360, qualidade = 0.8): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const src = e.target?.result as string;
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > height) {
+          if (width > maxDimensao) {
+            height = Math.round((height * maxDimensao) / width);
+            width = maxDimensao;
+          }
+        } else {
+          if (height > maxDimensao) {
+            width = Math.round((width * maxDimensao) / height);
+            height = maxDimensao;
+          }
+        }
+
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          resolve(src);
+          return;
+        }
+
+        ctx.drawImage(img, 0, 0, width, height);
+        const dataUrl = canvas.toDataURL("image/jpeg", qualidade);
+        resolve(dataUrl);
+      };
+      img.onerror = () => resolve(src);
+      img.src = src;
+    };
+    reader.onerror = (err) => reject(err);
+    reader.readAsDataURL(arquivo);
+  });
+}
 
 const DIAS_SEMANA_OPCOES = [
   { id: "1", nome: "Segunda", sigla: "Seg" },
@@ -137,18 +179,23 @@ export default function PaginaConfiguracoes() {
     setSlug(formatarSlug(e.target.value));
   };
 
-  const handleFotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
     const file = files[0];
 
-    // Converte foto para base64 para persistência instantânea no perfil
-    const reader = new FileReader();
-    reader.onload = () => {
-      const base64 = reader.result as string;
-      setFotoPerfil(base64);
-    };
-    reader.readAsDataURL(file);
+    try {
+      // Converte e comprime foto para avatar leve (evitando QuotaExceededError no localStorage)
+      const base64Comprimido = await comprimirImagemParaAvatar(file, 360, 0.8);
+      setFotoPerfil(base64Comprimido);
+    } catch {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64 = reader.result as string;
+        setFotoPerfil(base64);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSalvarTudo = async (e: React.FormEvent) => {
@@ -210,8 +257,8 @@ export default function PaginaConfiguracoes() {
       setSlug(slugFormatado);
       setMensagemSucesso(true);
       setTimeout(() => setMensagemSucesso(false), 4000);
-    } catch (err: any) {
-      setErro(err?.response?.data?.mensagem || "Erro ao salvar alterações.");
+    } catch (err: unknown) {
+      setErro(extrairMensagemErro(err));
     }
   };
 

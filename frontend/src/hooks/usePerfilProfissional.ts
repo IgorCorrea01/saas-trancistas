@@ -69,7 +69,11 @@ export function usePerfilProfissional() {
     setPerfil((prev) => {
       const atualizado = { ...prev, ...novosDados };
       if (typeof window !== "undefined") {
-        localStorage.setItem(CHAVE_STORAGE_PERFIL, JSON.stringify(atualizado));
+        try {
+          localStorage.setItem(CHAVE_STORAGE_PERFIL, JSON.stringify(atualizado));
+        } catch (err) {
+          console.warn("Não foi possível salvar perfil no localStorage:", err);
+        }
       }
       return atualizado;
     });

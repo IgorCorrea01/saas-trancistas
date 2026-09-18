@@ -18,16 +18,16 @@ export function useAtualizarEmpresa() {
       queryClient.invalidateQueries({ queryKey: ["empresa-atual"] });
       // Atualiza usuário salvo no localStorage se o slug/nome mudou
       if (typeof window !== "undefined") {
-        const usuarioArmazenado = localStorage.getItem(CHAVE_STORAGE_USUARIO);
-        if (usuarioArmazenado) {
-          try {
+        try {
+          const usuarioArmazenado = localStorage.getItem(CHAVE_STORAGE_USUARIO);
+          if (usuarioArmazenado) {
             const usuario = JSON.parse(usuarioArmazenado);
             usuario.nomeEmpresa = empresaAtualizada.nome;
             usuario.slugEmpresa = empresaAtualizada.slug;
             localStorage.setItem(CHAVE_STORAGE_USUARIO, JSON.stringify(usuario));
-          } catch {
-            // ignore
           }
+        } catch {
+          // ignore
         }
       }
     },
